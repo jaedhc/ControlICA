@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -20,6 +22,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${property("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${property("SUPABASE_URL")}\"")
     }
 
     buildTypes {
@@ -40,9 +45,10 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
     packaging {
         resources {
@@ -100,9 +106,16 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
-
     //Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+
+    //SUPABASE
+    implementation(libs.postgrest.kt)
+    implementation(libs.storage.kt)
+    implementation(libs.auth.kt)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.utils)
 }
