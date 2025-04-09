@@ -2,12 +2,11 @@
 agp = "8.5.2"
 converterGson = "2.9.0"
 kotlin = "2.1.0"
-coreKtx = "1.15.0"
+coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.10.1"
 composeBom = "2025.03.01"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
@@ -24,8 +23,11 @@ uiToolingPreview = "1.7.8"
 material = "1.7.8"
 appcompat = "1.7.0"
 materialVersion = "1.12.0"
-activity = "1.10.1"
+activity = "1.8.2"
+activityCompose = "1.8.2"
 constraintlayout = "2.1.4"
+supabase_version = "3.1.4"
+ktor_version = "2.3.10"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,7 +64,12 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-
+postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabase_version" }
+storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabase_version" }
+auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "supabase_version" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor_version" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor_version" }
+ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktor_version" }
 
 
 
