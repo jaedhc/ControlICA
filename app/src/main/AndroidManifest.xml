@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:name=".core.di.MyApp"
         android:allowBackup="true"
@@ -14,10 +17,12 @@
         android:theme="@style/Theme.ControlICA"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.HomeActivity"
-            android:exported="false" />
+            android:name=".presentation.view.HomeActivity"
+            android:exported="false"
+            android:label="@string/title_activity_home"
+            android:theme="@style/Theme.ControlICA" />
         <activity
-            android:name=".presentation.AuthActivity"
+            android:name=".presentation.view.AuthActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ControlICA">

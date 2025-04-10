@@ -17,7 +17,7 @@ class AuthRepositoryImpl @Inject constructor(
                 this.password = password
             }
             true
-        } catch (e: Exception){ 
+        } catch (e: Exception){
             false
         }
     }
