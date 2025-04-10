@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Control ICA</string>
+    <string name="title_activity_home">HomeActivity</string>
 </resources>

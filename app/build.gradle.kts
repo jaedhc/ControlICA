@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -115,7 +116,17 @@ dependencies {
     implementation(libs.postgrest.kt)
     implementation(libs.storage.kt)
     implementation(libs.auth.kt)
+
+    //KTOR
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    //implementation(libs.ktor.client.timeout)
     implementation(libs.ktor.utils)
+
+    //FONTS
+    implementation(libs.androidx.ui.text.google.fonts)
+
 }
