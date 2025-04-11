@@ -1,4 +1,4 @@
-package com.example.controlica.presentation.components
+package com.example.controlica.presentation.components.auth
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.controlica.presentation.viewmodel.AuthViewModel
-import com.example.onepieceapp.features.auth.presentation.components.LoginScreen
 
 @Composable
 fun AuthScreenController(
@@ -19,12 +18,6 @@ fun AuthScreenController(
 ) {
     Scaffold (
         modifier = Modifier.fillMaxSize(),
-//        bottomBar = {
-//            BottomNavBarAnimated(
-//                selectedItem = selectedItem,
-//                onItemSelected = { selectedItem = it }
-//            )
-//        }
     ) { innerPadding ->
         NavHost(
             navController = navHostController,
@@ -33,7 +26,7 @@ fun AuthScreenController(
                 LoginScreen(modifier = Modifier.padding(innerPadding), navHostController = navHostController, authViewModel)
             }
             composable("splash"){
-                SplashScreen(navHostController = navHostController)
+                SplashScreen(navHostController = navHostController, authViewModel)
             }
         }
     }

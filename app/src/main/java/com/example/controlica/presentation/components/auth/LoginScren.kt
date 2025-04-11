@@ -1,5 +1,6 @@
-package com.example.onepieceapp.features.auth.presentation.components
+package com.example.controlica.presentation.components.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -183,12 +184,15 @@ fun Login(
     }
 
     LaunchedEffect(loginResult) {
-        if(loginResult){
-            Toast.makeText(context, "Bienvenido!", Toast.LENGTH_SHORT).show()
-            val intent = Intent(context, HomeActivity::class.java)
-            context.startActivity(intent)
-        } else {
-            Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+        loginResult.onSuccess { user ->
+            if(user != null){
+                Toast.makeText(context, "Bienvenido!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(context, HomeActivity::class.java)
+                context.startActivity(intent)
+                if(context is Activity) context.finish()
+            }
+        }.onFailure { error ->
+            Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

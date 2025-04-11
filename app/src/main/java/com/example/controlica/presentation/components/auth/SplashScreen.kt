@@ -1,6 +1,7 @@
-package com.example.controlica.presentation.components
+package com.example.controlica.presentation.components.auth
 
-import android.graphics.Paint.Align
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -8,9 +9,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,37 +23,56 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.controlica.R
+import com.example.controlica.presentation.view.HomeActivity
+import com.example.controlica.presentation.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
-import okhttp3.internal.wait
 
 
 @Composable
-fun SplashScreen(navHostController: NavHostController){
-
+fun SplashScreen(
+    navHostController: NavHostController,
+    authViewModel: AuthViewModel
+){
     var visible by remember { mutableStateOf(true) }
+    val isFetching: Boolean by authViewModel.isFetching.collectAsState(initial = false)
+    val currentSession by authViewModel.currentSession.collectAsState()
+    val context = LocalContext.current
 
     val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else -1f,
+        targetValue = if (!isFetching) 1f else -1f,
         animationSpec = tween(durationMillis = 1000), label = "fade"
     )
 
     LaunchedEffect(Unit) {
-        delay(1500)            // Tiempo visible con opacidad 1
-        visible = false                 // Disparar animación a opacidad 0
-        delay(500)            // Esperar a que se complete el fade
-        navHostController.navigate("home"){
-            popUpTo("splash") { inclusive = true }
+        delay(700)
+        authViewModel.getCurrentSesion()
+    }
+
+    LaunchedEffect(currentSession) {
+        currentSession.onSuccess { user ->
+            if(user != null){
+                val intent = Intent(context, HomeActivity::class.java)
+                context.startActivity(intent)
+            } else {
+                navHostController.navigate("home"){
+                    popUpTo("splash") { inclusive = true }
+                }
+            }
+        }.onFailure { error ->
+            Toast.makeText(context, "Error ${error}", Toast.LENGTH_LONG).show()
+            navHostController.navigate("home"){
+                popUpTo("splash") { inclusive = true }
+            }
         }
     }
+
     Splash(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(Color(0xFF224483))
             .graphicsLayer { this.alpha = alpha }
     )
