@@ -1,7 +1,9 @@
 package com.example.controlica.core.di
 
 import com.example.controlica.data.repository.AuthRepositoryImpl
+import com.example.controlica.data.repository.EmployeeRepositoryImpl
 import com.example.controlica.domain.repository.AuthRepository
+import com.example.controlica.domain.repository.EmployeeRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,5 +62,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAuthRepository(auth: Auth): AuthRepository = AuthRepositoryImpl(auth)
+
+    @Provides
+    @Singleton
+    fun provideEmployeeRepository(
+        supabaseClient: SupabaseClient
+    ): EmployeeRepository {
+        return EmployeeRepositoryImpl(supabaseClient)
+    }
 
 }
