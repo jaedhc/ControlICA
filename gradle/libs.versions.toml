@@ -18,6 +18,10 @@ loggingInterceptor = "4.9.3"
 materialIconsExtended = "1.7.8"
 navigationCompose = "2.8.9"
 retrofit = "2.9.0"
+supabaseKtAuth = "0.17.0"
+supabaseKtPostgrest = "0.17.0"
+supabaseKtRealtime = "0.17.0"
+supabaseKtStorage = "0.17.0"
 ui = "1.7.8"
 uiTextGoogleFonts = "1.7.8"
 uiToolingPreview = "1.7.8"
@@ -59,6 +63,10 @@ androidx-lifecycle-runtime-ktx-v262 = { module = "androidx.lifecycle:lifecycle-r
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+supabase-kt-auth = { module = "io.github.jan-tennert.supabase:supabase-kt-auth", version.ref = "supabaseKtAuth" }
+supabase-kt-postgrest = { module = "io.github.jan-tennert.supabase:supabase-kt-postgrest", version.ref = "supabaseKtPostgrest" }
+supabase-kt-realtime = { module = "io.github.jan-tennert.supabase:supabase-kt-realtime", version.ref = "supabaseKtRealtime" }
+supabase-kt-storage = { module = "io.github.jan-tennert.supabase:supabase-kt-storage", version.ref = "supabaseKtStorage" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }

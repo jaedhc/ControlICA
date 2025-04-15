@@ -1,7 +1,11 @@
 package com.example.controlica.core.di
 
 import com.example.controlica.data.repository.AuthRepositoryImpl
+import com.example.controlica.data.repository.EmployeeRepositoryImpl
 import com.example.controlica.domain.repository.AuthRepository
+import com.example.controlica.domain.repository.EmployeeRepository
+import com.example.controlica.domain.use_case.auth.GetAllEmployeesUseCase
+import com.example.controlica.domain.use_case.auth.GetEmployeeByIdUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,5 +64,29 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAuthRepository(auth: Auth): AuthRepository = AuthRepositoryImpl(auth)
+
+    @Provides
+    @Singleton
+    fun provideEmployeeRepository(
+        supabaseClient: SupabaseClient
+    ): EmployeeRepository {
+        return EmployeeRepositoryImpl(supabaseClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetEmployeeByIdUseCase(
+        employeeRepository: EmployeeRepository
+    ): GetEmployeeByIdUseCase {
+        return GetEmployeeByIdUseCase(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetAllEmployeesUseCase(
+        employeeRepository: EmployeeRepository
+    ): GetAllEmployeesUseCase {
+        return GetAllEmployeesUseCase(employeeRepository)
+    }
 
 }

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,6 +8,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
     alias(libs.plugins.compose.compiler)
 }
+
+val properties = Properties()
+properties.load(project.rootProject.file("local.properties").inputStream())
+
+fun property(key: String) = properties.getProperty(key)
 
 android {
     namespace = "com.example.controlica"
@@ -113,9 +120,14 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     //SUPABASE
+    implementation(libs.supabase.kt.postgrest)
+    implementation(libs.supabase.kt.auth)
+    implementation(libs.supabase.kt.storage)
+    implementation(libs.supabase.kt.realtime)
     implementation(libs.postgrest.kt)
     implementation(libs.storage.kt)
     implementation(libs.auth.kt)
+
 
     //KTOR
     implementation(libs.ktor.client.core)
