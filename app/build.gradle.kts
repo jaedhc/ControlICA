@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,6 +8,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
     alias(libs.plugins.compose.compiler)
 }
+
+val properties = Properties()
+properties.load(project.rootProject.file("local.properties").inputStream())
+
+fun property(key: String) = properties.getProperty(key)
 
 android {
     namespace = "com.example.controlica"
