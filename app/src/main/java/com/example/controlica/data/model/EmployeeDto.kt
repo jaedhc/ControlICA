@@ -23,7 +23,6 @@ data class EmployeeDto(
     }
 }
 
-// Extensión para convertir el modelo de dominio a DTO
 fun Employee.toDataModel(): EmployeeDto {
     return EmployeeDto(
         id = id,

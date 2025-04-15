@@ -3,6 +3,7 @@ package com.example.controlica.domain.repository;
 import com.example.controlica.domain.model.Employee;
 import kotlin.Unit;
 
+// domain/repository/EmployeeRepository.kt
 interface EmployeeRepository {
     suspend fun getEmployeeById(userId: String): Result<Employee>
     suspend fun getAllEmployees(): Result<List<Employee>>

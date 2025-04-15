@@ -4,11 +4,11 @@ import com.example.controlica.domain.model.Employee
 import com.example.controlica.domain.repository.EmployeeRepository
 import javax.inject.Inject
 
-// domain/usecase/GetEmployeeByIdUseCase.kt
-class GetEmployeeByIdUseCase @Inject constructor(
+// domain/usecase/GetAllEmployeesUseCase.kt
+class GetAllEmployeesUseCase @Inject constructor(
     private val employeeRepository: EmployeeRepository
 ) {
-    suspend operator fun invoke(userId: String): Result<Employee> {
-        return employeeRepository.getEmployeeById(userId)
+    suspend operator fun invoke(): Result<List<Employee>> {
+        return employeeRepository.getAllEmployees()
     }
 }

@@ -120,9 +120,14 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     //SUPABASE
+    implementation(libs.supabase.kt.postgrest)
+    implementation(libs.supabase.kt.auth)
+    implementation(libs.supabase.kt.storage)
+    implementation(libs.supabase.kt.realtime)
     implementation(libs.postgrest.kt)
     implementation(libs.storage.kt)
     implementation(libs.auth.kt)
+
 
     //KTOR
     implementation(libs.ktor.client.core)
