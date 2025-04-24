@@ -9,10 +9,10 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val properties = Properties()
-properties.load(project.rootProject.file("local.properties").inputStream())
-
-fun property(key: String) = properties.getProperty(key)
+//val properties = Properties()
+//properties.load(project.rootProject.file("local.properties").inputStream())
+//
+//fun property(key: String) = properties.getProperty(key)
 
 android {
     namespace = "com.example.controlica"
@@ -120,10 +120,10 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     //SUPABASE
-    implementation(libs.supabase.kt.postgrest)
-    implementation(libs.supabase.kt.auth)
-    implementation(libs.supabase.kt.storage)
-    implementation(libs.supabase.kt.realtime)
+    //implementation(libs.supabase.kt.postgrest)
+    //implementation(libs.supabase.kt.auth)
+    //implementation(libs.supabase.kt.storage)
+    //implementation(libs.supabase.kt.realtime)
     implementation(libs.postgrest.kt)
     implementation(libs.storage.kt)
     implementation(libs.auth.kt)

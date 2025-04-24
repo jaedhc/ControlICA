@@ -1,6 +1,8 @@
 package com.example.controlica.data.model
 
 import com.example.controlica.domain.model.Employee
+import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 // data/model/EmployeeDto.kt
@@ -8,17 +10,17 @@ import kotlinx.serialization.Serializable
 data class EmployeeDto(
     val id: String,
     val name: String,
-    val employee_number: String,
+    @SerialName("employee_number") val employeeNumber: Int,
     val role: String,
-    val photo_url: String?
+    @SerialName("photo_url") val photoUrl: String?
 ) {
     fun toDomainModel(): Employee {
         return Employee(
             id = id,
             name = name,
-            employeeNumber = employee_number,
+            employeeNumber = employeeNumber,
             role = role,
-            photoUrl = photo_url
+            photoUrl = photoUrl
         )
     }
 }
@@ -27,8 +29,8 @@ fun Employee.toDataModel(): EmployeeDto {
     return EmployeeDto(
         id = id,
         name = name,
-        employee_number = employeeNumber,
+        employeeNumber = employeeNumber,
         role = role,
-        photo_url = photoUrl
+        photoUrl = photoUrl
     )
 }
