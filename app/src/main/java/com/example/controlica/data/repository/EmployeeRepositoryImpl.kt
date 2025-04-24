@@ -16,7 +16,7 @@ class EmployeeRepositoryImpl @Inject constructor(
     override suspend fun getEmployeeById(userId: String): Result<Employee> {
         return try {
             val employeeDto = supabaseClient.postgrest
-                .from("employees")
+                .from("employee_with_role")
                 .select {
                     filter {
                         eq("id", userId)
@@ -38,7 +38,7 @@ class EmployeeRepositoryImpl @Inject constructor(
     override suspend fun getAllEmployees(): Result<List<Employee>> {
         return try {
             val employeesDto = supabaseClient.postgrest
-                .from("employees")
+                .from("employee_with_role")
                 .select()
                 .decodeList<EmployeeDto>()
 

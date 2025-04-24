@@ -17,13 +17,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.controlica.presentation.components.common.BottomNavBarAnimated
 import com.example.controlica.presentation.components.common.TopBar
+import com.example.controlica.presentation.viewmodel.ManageUsersViewModel
 import com.example.controlica.presentation.viewmodel.UserViewModel
 
 @Composable
 fun HomeScreen(
     navHostController: NavHostController,
     startDestination: String = "dashboard",
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    manageUsersViewModel: ManageUsersViewModel
 ){
     var selectedItem by remember { mutableIntStateOf(0) }
 
@@ -53,6 +55,13 @@ fun HomeScreen(
                     .padding(innerPadding)
                     .background(Color(0xFFE6E6E6))//Color(0xFFE6E6E6)
                     .fillMaxSize())
+            }
+            composable("manage_users") {
+                ManageUsersScreen(modifier = Modifier
+                    .padding(innerPadding)
+                    .background(Color(0xFFE6E6E6))//Color(0xFFE6E6E6)
+                    .fillMaxSize(),
+                    manageUsersViewModel)
             }
             composable("user"){
                 UserScreen(modifier = Modifier

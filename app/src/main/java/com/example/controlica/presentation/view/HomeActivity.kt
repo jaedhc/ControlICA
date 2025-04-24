@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.controlica.presentation.components.HomeScreen
 import com.example.controlica.presentation.view.ui.theme.ControlICATheme
 import com.example.controlica.presentation.viewmodel.AuthViewModel
+import com.example.controlica.presentation.viewmodel.ManageUsersViewModel
 import com.example.controlica.presentation.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
@@ -23,12 +24,16 @@ import dagger.hilt.android.HiltAndroidApp
 @AndroidEntryPoint
 class HomeActivity : ComponentActivity() {
     private val userViewModel: UserViewModel by viewModels()
+    private val manageUsersViewModel: ManageUsersViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ControlICATheme {
-                HomeScreen(navHostController = rememberNavController(), userViewModel = userViewModel)
+                HomeScreen(
+                    navHostController = rememberNavController(),
+                    userViewModel = userViewModel,
+                    manageUsersViewModel = manageUsersViewModel)
             }
         }
     }
