@@ -1,6 +1,5 @@
-package com.example.controlica.presentation.components
+package com.example.controlica.presentation.components.manage_users
 
-import android.widget.Toast
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -26,17 +25,14 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,30 +55,72 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.controlica.R
 import com.example.controlica.domain.model.Employee
-import com.example.controlica.presentation.viewmodel.ManageUsersViewModel
+import com.example.controlica.presentation.components.common.widgets.SearchBar
+import com.example.controlica.presentation.viewmodel.manage_users.ManageUsersViewModel
 
 @Composable
 fun ManageUsersScreen(
     modifier: Modifier,
+    navHostController: NavHostController,
     manageUsersViewModel: ManageUsersViewModel
 ){
     Box(modifier = modifier){
-        Loader(manageUsersViewModel)
+        Loader(manageUsersViewModel, navHostController)
     }
 }
 
 
 @Composable
 fun Loader(
-    manageUsersViewModel: ManageUsersViewModel
+    manageUsersViewModel: ManageUsersViewModel,
+    navHostController: NavHostController
 ){
     val isLoading: Boolean by manageUsersViewModel.isLoading.collectAsState()
     val employees by manageUsersViewModel.listEmployees.collectAsState()
     var filteredEmployees by remember { mutableStateOf(listOf<Employee>()) }
     val context = LocalContext.current
 
+    Mocked(navHostController)
+
+//    when {
+//        isLoading -> {
+//            LoadingScreen()
+//        }
+//
+//        employees.isSuccess -> {
+//            val list = employees.getOrNull().orEmpty()
+//            if (list.isNotEmpty()){
+//                LoadedScreen(
+//                    allEmployees = list,
+//                    navHostController = navHostController,
+//                    onSearchChange = { filteredEmployees = it }
+//                )
+//                EmployeeList(employees = filteredEmployees)
+//            } else {
+//                Toast.makeText(context, "No hay usuarios", Toast.LENGTH_LONG).show()
+//                Text("No hay usuarios")
+//            }
+//        }
+//
+//        employees.isFailure -> {
+//            val errorMessage = employees.exceptionOrNull()?.localizedMessage ?: "Error desconocido"
+//            Text("Ocurrió un error: $errorMessage")
+//        }
+//    }
+//
+//    LaunchedEffect(Unit) {
+//        manageUsersViewModel.getAllEmployees()
+//    }
+}
+
+@Composable
+fun Mocked(
+    navHostController: NavHostController
+){
+    var filteredEmployees by remember { mutableStateOf(listOf<Employee>()) }
     val employe = listOf<Employee>(
         Employee(
             id = "1234",
@@ -114,48 +152,19 @@ fun Loader(
         )
     )
 
-//    var employeFilt: List<Employee> = listOf()
-//
     LoadedScreen(
         allEmployees = employe,
+        navHostController = navHostController,
         onSearchChange = {filteredEmployees = it}
     )
 
-    EmployeeList(employees = employe)
-
-//    when {
-//        isLoading -> {
-//            LoadingScreen()
-//        }
-//
-//        employees.isSuccess -> {
-//            val list = employees.getOrNull().orEmpty()
-//            if (list.isNotEmpty()){
-//                LoadedScreen(
-//                    allEmployees = list,
-//                    onSearchChange = { filteredEmployees = it }
-//                )
-//                EmployeeList(employees = filteredEmployees)
-//            } else {
-//                Toast.makeText(context, "No hay usuarios", Toast.LENGTH_LONG).show()
-//                Text("No hay usuarios")
-//            }
-//        }
-//
-//        employees.isFailure -> {
-//            val errorMessage = employees.exceptionOrNull()?.localizedMessage ?: "Error desconocido"
-//            Text("Ocurrió un error: $errorMessage")
-//        }
-//    }
-//
-//    LaunchedEffect(Unit) {
-//        manageUsersViewModel.getAllEmployees()
-//    }
+    EmployeeList(employees = filteredEmployees)
 }
 
 @Composable
 fun LoadedScreen(
     allEmployees: List<Employee>,
+    navHostController: NavHostController,
     onSearchChange: (List<Employee>) -> Unit
 ){
     var query by remember { mutableStateOf("") }
@@ -176,7 +185,13 @@ fun LoadedScreen(
     ) {
         SearchBar(
             modifier = Modifier
-                .weight(.80f),
+                .weight(.80f)
+                .background(
+                    Color(0xFFFFFFFF),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 16.dp)
+                .height(75.dp),
             onSearch = { query = it }
         )
 
@@ -191,46 +206,12 @@ fun LoadedScreen(
                 containerColor = Color(0xFF4771BF),
                 contentColor = Color.White,
             ),
-            onClick = {}
+            onClick = { navHostController.navigate("add_user") }
         ) {
             Text(text = "+", fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
         }
 //        EmployeeList(employees = filtered)
     }
-}
-
-@Composable
-fun SearchBar(
-    modifier: Modifier,
-    onSearch: (String) -> Unit
-) {
-    var text by remember { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = text,
-        onValueChange = {
-            text = it
-            onSearch(it) // ← Aquí se llama al callback en cada cambio
-        },
-        label = { Text("Buscar...") },
-        trailingIcon = {
-            Icon(Icons.Default.Search, contentDescription = null)
-        },
-        modifier = modifier,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFFF9F9F9),
-            unfocusedBorderColor = Color(0xFFF9F9F9),
-            unfocusedContainerColor = Color(0xFFF9F9F9),
-            focusedContainerColor = Color(0xFFF9F9F9),
-            focusedTextColor = Color(0xFF919BAD),
-            unfocusedTextColor = Color(0xFF919BAD),
-            cursorColor = Color(0xFF919BAD),
-            unfocusedLeadingIconColor = Color(0xFF919BAD),
-            unfocusedSuffixColor = Color(0xFF919BAD),
-            focusedLeadingIconColor = Color(0xFF919BAD),
-            focusedLabelColor = Color(0xFF919BAD),
-        )
-    )
 }
 
 @Composable
