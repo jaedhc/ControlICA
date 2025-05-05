@@ -1,5 +1,6 @@
 package com.example.controlica.presentation.components.manage_users
 
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
@@ -40,6 +42,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -56,10 +60,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.controlica.R
 import com.example.controlica.domain.model.Employee
+import com.example.controlica.presentation.components.common.widgets.CustomDialog
 import com.example.controlica.presentation.components.common.widgets.SearchBar
 import com.example.controlica.presentation.viewmodel.manage_users.ManageUsersViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ManageUsersScreen(
@@ -83,82 +90,40 @@ fun Loader(
     var filteredEmployees by remember { mutableStateOf(listOf<Employee>()) }
     val context = LocalContext.current
 
-    Mocked(navHostController)
+    //Mocked(navHostController)
 
-//    when {
-//        isLoading -> {
-//            LoadingScreen()
-//        }
-//
-//        employees.isSuccess -> {
-//            val list = employees.getOrNull().orEmpty()
-//            if (list.isNotEmpty()){
-//                LoadedScreen(
-//                    allEmployees = list,
-//                    navHostController = navHostController,
-//                    onSearchChange = { filteredEmployees = it }
-//                )
-//                EmployeeList(employees = filteredEmployees)
-//            } else {
-//                Toast.makeText(context, "No hay usuarios", Toast.LENGTH_LONG).show()
-//                Text("No hay usuarios")
-//            }
-//        }
-//
-//        employees.isFailure -> {
-//            val errorMessage = employees.exceptionOrNull()?.localizedMessage ?: "Error desconocido"
-//            Text("Ocurrió un error: $errorMessage")
-//        }
-//    }
-//
-//    LaunchedEffect(Unit) {
-//        manageUsersViewModel.getAllEmployees()
-//    }
-}
+    when {
+        isLoading -> {
+            LoadingScreen()
+        }
 
-@Composable
-fun Mocked(
-    navHostController: NavHostController
-){
-    var filteredEmployees by remember { mutableStateOf(listOf<Employee>()) }
-    val employe = listOf<Employee>(
-        Employee(
-            id = "1234",
-            name = "Jairo Hernández",
-            employeeNumber = 18472639,
-            role = "employee",
-            photoUrl = null
-        ),
-        Employee(
-            id = "1234",
-            name = "Mauricio Jair",
-            employeeNumber = 90218475,
-            role = "admin",
-            photoUrl = null
-        ),
-        Employee(
-            id = "1234",
-            name = "Carlos Suarez",
-            employeeNumber = 53782019,
-            role = "admin",
-            photoUrl = null
-        ),
-        Employee(
-            id = "1234",
-            name = "Jorge Santillan",
-            employeeNumber = 46193820,
-            role = "employee",
-            photoUrl = null
-        )
-    )
+        employees.isSuccess -> {
+            val list = employees.getOrNull().orEmpty()
+            if (list.isNotEmpty()){
+                LoadedScreen(
+                    allEmployees = list,
+                    navHostController = navHostController,
+                    onSearchChange = { filteredEmployees = it }
+                )
+                EmployeeList(
+                    employees = filteredEmployees,
+                    manageUsersViewModel
+                )
+            } else {
+                Toast.makeText(context, "No hay usuarios", Toast.LENGTH_LONG).show()
+                Text("No hay usuarios")
+            }
+        }
 
-    LoadedScreen(
-        allEmployees = employe,
-        navHostController = navHostController,
-        onSearchChange = {filteredEmployees = it}
-    )
+        employees.isFailure -> {
+            val errorMessage = employees.exceptionOrNull()?.localizedMessage ?: "Error desconocido"
+            Text("Ocurrió un error: $errorMessage")
+        }
+    }
 
-    EmployeeList(employees = filteredEmployees)
+    LaunchedEffect(Unit) {
+        manageUsersViewModel.getAllEmployees()
+    }
 }
 
 @Composable
@@ -210,21 +175,98 @@ fun LoadedScreen(
         ) {
             Text(text = "+", fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
         }
-//        EmployeeList(employees = filtered)
+        //EmployeeList(employees = filtered)
     }
 }
 
 @Composable
-fun EmployeeList(employees: List<Employee>){
+fun Mocked(
+    navHostController: NavHostController
+){
+    var filteredEmployees by remember { mutableStateOf(listOf<Employee>()) }
+    val employe = listOf<Employee>(
+        Employee(
+            id = "1234",
+            name = "Jairo Hernández",
+            employeeNumber = 18472639,
+            role = "employee",
+            photoUrl = null,
+            password = "",
+            email = ""
+        ),
+        Employee(
+            id = "1234",
+            name = "Mauricio Jair",
+            employeeNumber = 90218475,
+            role = "admin",
+            photoUrl = null,
+            password = "",
+            email = ""
+        ),
+        Employee(
+            id = "1234",
+            name = "Carlos Suarez",
+            employeeNumber = 53782019,
+            role = "admin",
+            photoUrl = null,
+            password = "",
+            email = ""
+        ),
+        Employee(
+            id = "1234",
+            name = "Jorge Santillan",
+            employeeNumber = 46193820,
+            role = "employee",
+            photoUrl = null,
+            password = "",
+            email = ""
+        )
+    )
+
+    LoadedScreen(
+        allEmployees = employe,
+        navHostController = navHostController,
+        onSearchChange = {filteredEmployees = it}
+    )
+
+    //EmployeeList(employees = filteredEmployees)
+}
+
+
+@Composable
+fun EmployeeList(
+    employees: List<Employee>,
+    manageUsersViewModel: ManageUsersViewModel
+){
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var employeeId by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+
     LazyColumn(modifier = Modifier
         .fillMaxSize()
         .padding(top = 80.dp),
         verticalArrangement = Arrangement.Top
     ) {
         items(employees){ employee ->
-            EmployeeCard(employee = employee, onEdit = { })
+            EmployeeCard(
+                employee = employee,
+                onEdit = { },
+                onDelete = {
+                    employeeId = employee.id.toString()
+                    showDeleteDialog = true
+                })
         }
     }
+
+    CustomDialog(
+        onDeleteClick = {
+            manageUsersViewModel.deleteUser(employeeId)
+            showDeleteDialog = false },
+        onCancelClick = { showDeleteDialog = false },
+        onDismissRequest = { showDeleteDialog = false },
+        showDialog = showDeleteDialog,
+        )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -232,12 +274,17 @@ fun EmployeeList(employees: List<Employee>){
 fun EmployeeCard(
     employee: Employee,
     onEdit: () -> Unit,
+    onDelete: () -> Unit,
 ){
     val dismissState = rememberDismissState(
         confirmStateChange = {
             when(it){
                 DismissValue.DismissedToEnd -> {
                     onEdit()
+                    false
+                }
+                DismissValue.DismissedToStart -> {
+                    onDelete()
                     false
                 }
                 else -> false
@@ -304,14 +351,28 @@ fun EmployeeCard(
                         .fillMaxHeight()
                         .align(Alignment.CenterVertically)
                     ){
-                        Image(
-                            painter = painterResource(id = R.drawable.def_profile_pic),
-                            contentDescription = "default prfile pic",
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .height(60.dp)
-                                .width(60.dp)
-                        )
+                        if (!employee.photoUrl.isNullOrEmpty()){
+                            AsyncImage(
+                                model = employee.photoUrl, // URL de la imagen
+                                contentDescription = "Imagen de perfil",
+                                modifier = Modifier
+                                    .height(60.dp)
+                                    .width(60.dp)
+                                    .clip(CircleShape)
+                                    .align(Alignment.Center),
+                                contentScale = ContentScale.Crop
+                            )
+                        }else{
+                            Image(
+                                painter = painterResource(id = R.drawable.def_profile_pic),
+                                contentDescription = "default prfile pic",
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .clip(CircleShape)
+                                    .height(60.dp)
+                                    .width(60.dp)
+                            )
+                        }
                     }
                     Column(modifier = Modifier
                         .padding(16.dp)

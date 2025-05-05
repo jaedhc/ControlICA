@@ -4,22 +4,23 @@ import com.example.controlica.data.repository.AuthRepositoryImpl
 import com.example.controlica.data.repository.EmployeeRepositoryImpl
 import com.example.controlica.domain.repository.AuthRepository
 import com.example.controlica.domain.repository.EmployeeRepository
-import com.example.controlica.domain.use_case.auth.GetAllEmployeesUseCase
-import com.example.controlica.domain.use_case.auth.GetEmployeeByIdUseCase
+import com.example.controlica.domain.use_case.employees.GetAllEmployeesUseCase
+import com.example.controlica.domain.use_case.employees.GetEmployeeByIdUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.jan.supabase.BuildConfig
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.FlowType
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.minimalSettings
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
+import javax.inject.Named
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -28,6 +29,7 @@ object AppModule {
 
     @Provides
     @Singleton
+    @Named("supabase_public_client")
     fun provideSupabaseClient(): SupabaseClient{
         return createSupabaseClient(
             supabaseUrl = com.example.controlica.BuildConfig.SUPABASE_URL,
@@ -45,19 +47,35 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSupabaseDatabase(client: SupabaseClient): Postgrest {
+    @Named("supabase_admin_client")
+    fun provideAdminSupabaseClient(): SupabaseClient {
+        return createSupabaseClient(
+            supabaseUrl = com.example.controlica.BuildConfig.SUPABASE_URL,
+            supabaseKey = com.example.controlica.BuildConfig.SUPABASE_SERVICE_ROLE_KEY// 👈 Aquí debes agregar en tus BuildConfig tu service_key
+        ) {
+            install(Postgrest)
+            install(Auth){
+                minimalSettings()
+            }
+            install(Storage)
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideSupabaseDatabase(@Named("supabase_public_client")client: SupabaseClient): Postgrest {
         return client.postgrest
     }
 
     @Provides
     @Singleton
-    fun provideSupabaseAuth(client: SupabaseClient): Auth {
+    fun provideSupabaseAuth(@Named("supabase_public_client") client: SupabaseClient): Auth {
         return client.auth
     }
 
     @Provides
     @Singleton
-    fun provideSupabaseStorage(client: SupabaseClient): Storage {
+    fun provideSupabaseStorage(@Named("supabase_public_client") client: SupabaseClient): Storage {
         return client.storage
     }
 
@@ -68,9 +86,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideEmployeeRepository(
-        supabaseClient: SupabaseClient
+        @Named("supabase_public_client") supabaseClient: SupabaseClient,
+        @Named("supabase_admin_client") supabaseAdminClient: SupabaseClient,
+        auth: Auth
     ): EmployeeRepository {
-        return EmployeeRepositoryImpl(supabaseClient)
+        return EmployeeRepositoryImpl(supabaseClient, supabaseAdminClient, auth)
     }
 
     @Provides

@@ -48,8 +48,8 @@ fun SplashScreen(
     )
 
     LaunchedEffect(Unit) {
-        delay(700)
         authViewModel.getCurrentSesion()
+        delay(700)
     }
 
     LaunchedEffect(currentSession) {
