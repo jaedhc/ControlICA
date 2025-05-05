@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import kotlin.reflect.jvm.internal.impl.types.checker.TypeRefinementSupport.Enabled
 
 @Composable
 fun CustomInput(
@@ -33,7 +34,8 @@ fun CustomInput(
     modifier: Modifier,
     type: InputType = InputType.TEXT,
     iconColor: Color = Color(0xFFBABABA),
-    onQueryChange: (String) -> Unit
+    onQueryChange: (String) -> Unit,
+    enabled: Boolean
 ){
 
     var passwordVisible by remember { mutableStateOf(false) }
@@ -76,6 +78,7 @@ fun CustomInput(
                         color = Color.Black,
                         fontSize = 16.sp
                     ),
+                    enabled = enabled,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = keyboardType
                     ),

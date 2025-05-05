@@ -23,13 +23,15 @@ import com.example.controlica.presentation.components.manage_users.AddUserScreen
 import com.example.controlica.presentation.components.manage_users.ManageUsersScreen
 import com.example.controlica.presentation.viewmodel.manage_users.ManageUsersViewModel
 import com.example.controlica.presentation.viewmodel.UserViewModel
+import com.example.controlica.presentation.viewmodel.manage_users.AddUserViewModel
 
 @Composable
 fun HomeScreen(
     navHostController: NavHostController,
     startDestination: String = "dashboard",
     userViewModel: UserViewModel,
-    manageUsersViewModel: ManageUsersViewModel
+    manageUsersViewModel: ManageUsersViewModel,
+    addUserViewModel: AddUserViewModel
 ){
     var selectedItem by remember { mutableIntStateOf(0) }
     val scrollState = rememberScrollState()
@@ -82,7 +84,9 @@ fun HomeScreen(
                     .padding(start = 16.dp, end = 16.dp)
                     .background(Color(0xFFE6E6E6))
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
+                    addUserViewModel = addUserViewModel,
+                    navHostController = navHostController
                 )
             }
         }

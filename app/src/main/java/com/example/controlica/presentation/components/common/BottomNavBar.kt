@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +27,8 @@ fun BottomNavBarAnimated(
 ){
     val items = listOf(
         Icons.Default.Home,
+        Icons.Default.Inventory,
         Icons.Default.Groups,
-        Icons.Default.Person,
         Icons.Default.Person
     )
 
@@ -36,6 +37,13 @@ fun BottomNavBarAnimated(
         "stock",
         "manage_users",
         "user"
+    )
+
+    val sizes = listOf(
+        36.dp,
+        30.dp,
+        36.dp,
+        36.dp
     )
 
     Box(
@@ -50,7 +58,7 @@ fun BottomNavBarAnimated(
                 BottomNavigationItem(
                     icon = {
                         Icon(
-                            modifier = Modifier.height(36.dp).width(36.dp),
+                            modifier = Modifier.height(sizes[index]).width(sizes[index]),
                             imageVector = icon,
                             contentDescription = null,
                             tint = if (selectedItem == index) Color(0xFF002E6D) else Color.Gray

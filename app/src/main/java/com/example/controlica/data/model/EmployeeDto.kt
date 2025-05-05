@@ -20,14 +20,16 @@ data class EmployeeDto(
             name = name,
             employeeNumber = employeeNumber,
             role = role,
-            photoUrl = photoUrl
+            photoUrl = photoUrl,
+            password = "",
+            email = ""
         )
     }
 }
 
 fun Employee.toDataModel(): EmployeeDto {
     return EmployeeDto(
-        id = id,
+        id = id!!,
         name = name,
         employeeNumber = employeeNumber,
         role = role,
