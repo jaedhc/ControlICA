@@ -63,6 +63,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.controlica.R
 import com.example.controlica.domain.model.Employee
+import com.example.controlica.presentation.components.common.shimmerEffect
 import com.example.controlica.presentation.components.common.widgets.CustomDialog
 import com.example.controlica.presentation.components.common.widgets.SearchBar
 import com.example.controlica.presentation.viewmodel.manage_users.ManageUsersViewModel
@@ -175,7 +176,6 @@ fun LoadedScreen(
         ) {
             Text(text = "+", fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
         }
-        //EmployeeList(employees = filtered)
     }
 }
 
@@ -241,7 +241,6 @@ fun EmployeeList(
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var employeeId by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
 
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -360,7 +359,8 @@ fun EmployeeCard(
                                     .width(60.dp)
                                     .clip(CircleShape)
                                     .align(Alignment.Center),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                placeholder = painterResource(id = R.drawable.def_profile_pic)
                             )
                         }else{
                             Image(
@@ -405,37 +405,6 @@ fun EmployeeCard(
             }
         }
     )
-}
-
-
-// ------------------ SHIMMER EFFECT ----------------------------------
-
-fun Modifier.shimmerEffect(): Modifier = composed{
-    var size by remember {
-        mutableStateOf(IntSize.Zero)
-    }
-    val transition = rememberInfiniteTransition()
-    val startOffsetX by transition.animateFloat(
-        initialValue = -2 * size.width.toFloat(),
-        targetValue = 2 * size.width.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000)
-        ), label = ""
-    )
-
-    background(
-        brush = Brush.linearGradient(
-            colors = listOf(
-                Color(0xFFB8B5B5),
-                Color(0xFF8F8B8B),
-                Color(0xFFB8B5B5),
-            ),
-            start = Offset(startOffsetX, 0f),
-            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
-        )
-    ).onGloballyPositioned {
-        size = it.size
-    }
 }
 
 @Composable

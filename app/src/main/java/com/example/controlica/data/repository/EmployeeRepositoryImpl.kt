@@ -2,12 +2,12 @@ package com.example.controlica.data.repository
 
 import android.util.Log
 import com.example.controlica.BuildConfig
-import com.example.controlica.data.model.EmployeeDto
-import com.example.controlica.data.model.NewEmployeeDTO
-import com.example.controlica.data.model.toDataModel
+import com.example.controlica.data.model.users.EmployeeDto
+import com.example.controlica.data.model.users.NewEmployeeRequest
+import com.example.controlica.data.model.users.toDataModel
 import com.example.controlica.domain.model.Employee
-import com.example.controlica.data.model.RolDTO
-import com.example.controlica.data.model.UserRoleDTO
+import com.example.controlica.data.model.users.RolDTO
+import com.example.controlica.data.model.users.UserRoleDTO
 import com.example.controlica.domain.model.NewEmployee
 import com.example.controlica.domain.repository.EmployeeRepository
 import io.github.jan.supabase.SupabaseClient
@@ -120,7 +120,6 @@ class EmployeeRepositoryImpl @Inject constructor(
                 }
             }
             val userId = signUpResult.id
-
             val photoResult = employee.photo?.let {
                 supabaseAdminClient.storage
                     .from("users")
@@ -128,31 +127,26 @@ class EmployeeRepositoryImpl @Inject constructor(
                         upsert = false
                     }
             }
-
             val photoURL = photoResult?.path?.let {
                 supabaseAdminClient.storage.from("users").publicUrl(it)
             }
-
             val roleResult = supabaseClient.postgrest.from("roles")
                 .select {
                     filter {
                         eq("name", employee.role)
                     }
                 }.decodeSingleOrNull<RolDTO>()
-
             val roleId = roleResult?.id ?: return Result.failure(Exception("Rol no encontrado"))
-
             supabaseClient.postgrest.from("user_roles")
                 .insert(UserRoleDTO(userId = userId, roleId = roleId))
-
             supabaseClient.postgrest.from("employees")
-                .insert(NewEmployeeDTO(
+                .insert(
+                    NewEmployeeRequest(
                         id = userId,
                         name = employee.name,
                         employeeNumber = employee.employeeNumber,
                         photoUrl = photoURL)
                 )
-
             Result.success(Unit)
         } catch (e: Exception) {
             when (e){
