@@ -1,7 +1,6 @@
-package com.example.controlica.data.model
+package com.example.controlica.data.model.users
 
 import com.example.controlica.domain.model.Employee
-import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

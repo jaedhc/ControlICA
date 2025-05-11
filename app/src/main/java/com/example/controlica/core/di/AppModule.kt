@@ -2,8 +2,10 @@ package com.example.controlica.core.di
 
 import com.example.controlica.data.repository.AuthRepositoryImpl
 import com.example.controlica.data.repository.EmployeeRepositoryImpl
+import com.example.controlica.data.repository.ProductRepositoryImpl
 import com.example.controlica.domain.repository.AuthRepository
 import com.example.controlica.domain.repository.EmployeeRepository
+import com.example.controlica.domain.repository.ProductRepository
 import com.example.controlica.domain.use_case.employees.GetAllEmployeesUseCase
 import com.example.controlica.domain.use_case.employees.GetEmployeeByIdUseCase
 import dagger.Module
@@ -91,6 +93,14 @@ object AppModule {
         auth: Auth
     ): EmployeeRepository {
         return EmployeeRepositoryImpl(supabaseClient, supabaseAdminClient, auth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductRepository(
+        @Named("supabase_public_client") supabaseClient: SupabaseClient,
+    ): ProductRepository {
+        return ProductRepositoryImpl(supabaseClient)
     }
 
     @Provides

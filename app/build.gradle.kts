@@ -148,6 +148,9 @@ dependencies {
     //COIL
     implementation(libs.coil.compose)
 
+    implementation(libs.mpandroidchart)
+
+
 
 
 }

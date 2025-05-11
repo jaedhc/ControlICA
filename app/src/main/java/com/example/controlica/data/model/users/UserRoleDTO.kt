@@ -1,4 +1,4 @@
-package com.example.controlica.data.model
+package com.example.controlica.data.model.users
 
 import com.example.controlica.domain.model.UserRole
 import kotlinx.serialization.SerialName

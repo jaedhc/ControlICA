@@ -28,13 +28,13 @@ import androidx.compose.ui.unit.sp
 import kotlin.reflect.jvm.internal.impl.types.checker.TypeRefinementSupport.Enabled
 
 @Composable
-fun CustomInput(
-    text: String,
+fun <T> CustomInput(
+    text: T,
     placeholder: String,
     modifier: Modifier,
     type: InputType = InputType.TEXT,
     iconColor: Color = Color(0xFFBABABA),
-    onQueryChange: (String) -> Unit,
+    onQueryChange: (T) -> Unit,
     enabled: Boolean
 ){
 
@@ -63,16 +63,25 @@ fun CustomInput(
             Box(
                 modifier = Modifier.weight(1f)
             ) {
-                if (text.isEmpty()) {
+                if (valueIsEmpty(text)) {
                     Text(
                         text = placeholder,
                         color = Color.Gray,
                         fontSize = 16.sp
                     )
                 }
+
+                val texto = if(valueIsEmpty(text))
+                    ""
+                else
+                    text.toString()
+
                 BasicTextField(
-                    value = text,
-                    onValueChange = onQueryChange,
+                    value = texto,
+                    onValueChange = { newText ->
+                        val updatedValue = convertToType(newText, text)
+                        updatedValue?.let { onQueryChange(it) }
+                    },
                     singleLine = true,
                     textStyle = TextStyle(
                         color = Color.Black,
@@ -96,5 +105,24 @@ fun CustomInput(
                 }
             }
         }
+    }
+}
+
+// Función para evaluar si el valor está vacío o es equivalente a "vacío"
+fun <T> valueIsEmpty(value: T): Boolean {
+    return when (value) {
+        is String -> value.isEmpty()
+        is Double -> value.equals(0.0)
+        is Int -> value == 0
+        else -> false // Otras verificaciones específicas si es necesario
+    }
+}
+
+fun <T> convertToType(newText: String, value: T): T? {
+    return when (value) {
+        is String -> newText as T
+        is Double -> newText.toDoubleOrNull() as T? // Retorna null si no es un número válido
+        is Int -> newText.toIntOrNull() as T? // Retorna null si no es un número válido
+        else -> null
     }
 }
