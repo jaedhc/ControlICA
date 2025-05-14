@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.controlica.presentation.components.HomeScreen
 import com.example.controlica.presentation.view.ui.theme.ControlICATheme
+import com.example.controlica.presentation.viewmodel.DashboardViewModel
 import com.example.controlica.presentation.viewmodel.manage_users.ManageUsersViewModel
 import com.example.controlica.presentation.viewmodel.UserViewModel
 import com.example.controlica.presentation.viewmodel.manage_users.AddUserViewModel
@@ -25,20 +26,22 @@ class HomeActivity : ComponentActivity() {
     private val addUserViewModel: AddUserViewModel by viewModels()
     private val manageProdcutsViewModel: ManageProdcutsViewModel by viewModels()
     private val addProductViewModel: AddProductViewModel by viewModels()
+    private val dashboardViewModel: DashboardViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ControlICATheme {
+            ControlICATheme (darkTheme = true) {
                 HomeScreen(
                     navHostController = rememberNavController(),
                     userViewModel = userViewModel,
                     manageUsersViewModel = manageUsersViewModel,
                     addUserViewModel = addUserViewModel,
                     manageProdcutsViewModel = manageProdcutsViewModel,
-                    addProductViewModel = addProductViewModel
+                    addProductViewModel = addProductViewModel,
+                    dashboardViewModel = dashboardViewModel
                     )
             }
         }

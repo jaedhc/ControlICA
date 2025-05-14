@@ -1,14 +1,13 @@
 package com.example.controlica.domain.repository
 
+import com.example.controlica.data.model.users.CurrentEmployeeData
 import io.github.jan.supabase.auth.user.UserSession
 
 interface AuthRepository {
 
-    suspend fun login(email:String, password:String): Result<UserSession?>
+    suspend fun login(email:String, password:String): Result<CurrentEmployeeData?>
 
-    suspend fun signUp(email:String, password:String): Result<UserSession?>
-
-    suspend fun getCurrentSession(): Result<UserSession?>
+    suspend fun getCurrentSession(): Result<CurrentEmployeeData?>
 
     suspend fun logOut()
 

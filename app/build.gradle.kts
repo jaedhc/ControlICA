@@ -150,6 +150,8 @@ dependencies {
 
     implementation(libs.mpandroidchart)
 
+    implementation(libs.charts)
+
 
 
 

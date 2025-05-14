@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +49,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.SliderDefaults
@@ -77,9 +80,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.controlica.R
+import com.example.controlica.core.di.AppSessionEntryPoint
 import com.example.controlica.data.model.products.ProductDTO
 import com.example.controlica.data.model.products.ProductFilterRequest
 import com.example.controlica.presentation.components.common.shimmerEffect
@@ -88,8 +93,11 @@ import com.example.controlica.presentation.components.common.widgets.CustomDialo
 import com.example.controlica.presentation.components.common.widgets.CustomDropdown
 import com.example.controlica.presentation.components.common.widgets.SearchBar
 import com.example.controlica.presentation.viewmodel.products.ManageProdcutsViewModel
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import okhttp3.internal.wait
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -127,6 +135,17 @@ fun Loader(
 
     val context = LocalContext.current
 
+
+    // Obtiene la instancia singleton de AppSession
+    val appSession = remember {
+        EntryPointAccessors.fromApplication(
+            context,
+            AppSessionEntryPoint::class.java
+        ).appSession()
+    }
+
+    val isAdmin by appSession.isAdmin.collectAsState()
+
     when {
         isLoading -> LoadingScreen()
 
@@ -145,23 +164,26 @@ fun Loader(
             )
 
             if(products.isNotEmpty()){
-                ProductList(filteredProducts)
-
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ){
-                    FloatingActionButton(
-                        onClick = { navHostController.navigate("add_product") },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = 16.dp, bottom = 16.dp),
-                        shape = CircleShape,
-                        containerColor = Color(0xFF4771BF) // Color de fondo del botón
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar"
-                        )
+                ProductList(filteredProducts, manageProdcutsViewModel, isAdmin)
+                
+                if (isAdmin){
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ){
+                        FloatingActionButton(
+                            onClick = { navHostController.navigate("add_product") },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = 16.dp, bottom = 16.dp),
+                            shape = CircleShape,
+                            containerColor = Color(0xFF4771BF) // Color de fondo del botón
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Agregar",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             } else {
@@ -205,89 +227,16 @@ fun Loader(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun Menu(
-    allProducts: List<ProductDTO>,
-    navHostController: NavHostController,
-    onSearchChange: (List<ProductDTO>) -> Unit,
-    onFilteredChange: (ProductFilterRequest) -> Unit
-){
-    var query by remember { mutableStateOf("") }
-    var showFilterDialog by remember { mutableStateOf(false) }
-    val queried = remember(query, allProducts) {
-        allProducts.filter { it.name.contains(query, ignoreCase = true) }
-    }
-    var filtered by remember {
-        mutableStateOf(ProductFilterRequest(
-            1.0,
-            999.0,
-            LocalDate(2026,12,31),
-            null,
-            null))
-    }
-
-    LaunchedEffect(queried) {
-        onSearchChange(queried)
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp)
-            .padding(10.dp)
-    ) {
-        SearchBar(
-            modifier = Modifier
-                .weight(.80f)
-                .background(
-                    Color(0xFFFFFFFF),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(horizontal = 16.dp)
-                .height(75.dp),
-            onSearch = { query = it }
-        )
-        Spacer(modifier = Modifier.weight(.05f))
-        Button(
-            modifier = Modifier
-                .weight(.15f)
-                .height(70.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-            ),
-            onClick = { showFilterDialog = true }
-        ) {
-            Image(
-                painter = rememberVectorPainter(image = Icons.Default.FilterList),
-                contentDescription = "Filtros",
-                modifier = Modifier
-                    .size(80.dp)
-                    .graphicsLayer(
-                        scaleX = 2f,
-                        scaleY = 2f
-                    ))
-        }
-    }
-
-    FilterDialog(
-        onAplicarFiltro = {
-            filtered = it
-            onFilteredChange(it) },
-        onCancelClick = { showFilterDialog = false },
-        onDismissRequest  = { showFilterDialog = false },
-        showDialog = showFilterDialog
-    )
-
-}
-
 @Composable
 fun ProductList(
-    products: List<ProductDTO>
+    products: List<ProductDTO>,
+    manageProdcutsViewModel: ManageProdcutsViewModel,
+    isAdmin: Boolean
 ){
     var showDeleteDialog by remember { mutableStateOf(false) }
     var productId by remember { mutableStateOf("") }
+
+    var selectedProduct by remember { mutableStateOf<ProductDTO?>(null) }
 
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -297,11 +246,12 @@ fun ProductList(
         items(products){ product ->
             ProductCard(
                 product = product,
-                onEdit = { },
+                onEdit = { selectedProduct = product },
                 onDelete = {
                     productId = product.id.toString()
                     showDeleteDialog = true
-                })
+                },
+                isAdmin = isAdmin)
         }
     }
 
@@ -312,6 +262,17 @@ fun ProductList(
         onDismissRequest = { showDeleteDialog = false },
         showDialog = showDeleteDialog,
     )
+
+    selectedProduct?.let { product ->
+        ProductEditPopup(
+            product = product,
+            onEdit = { productId, newStock ->
+                manageProdcutsViewModel.updateStock(productId, newStock)
+            },
+            onDismiss = { selectedProduct = null },
+            isAdmin = isAdmin
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -320,6 +281,7 @@ fun ProductCard(
     product: ProductDTO,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    isAdmin: Boolean
 ){
     val dismissState = rememberDismissState(
         confirmStateChange = {
@@ -329,7 +291,7 @@ fun ProductCard(
                     false
                 }
                 DismissValue.DismissedToStart -> {
-                    onDelete()
+                    if(isAdmin) onDelete()
                     false
                 }
                 else -> false
@@ -347,8 +309,20 @@ fun ProductCard(
                 null -> Color.Transparent
             }
             val icon = when (direction) {
-                DismissDirection.StartToEnd -> Icons.Default.Edit
-                DismissDirection.EndToStart -> Icons.Default.Delete
+
+                DismissDirection.StartToEnd -> {
+                    if(isAdmin){
+                        Icons.Default.Edit
+                    }else {
+                        Icons.Default.RemoveRedEye
+                    }
+                }
+                DismissDirection.EndToStart ->
+                    if(isAdmin){
+                        Icons.Default.Delete
+                    }else {
+                        null
+                    }
                 null -> null
             }
             Box(
@@ -466,6 +440,185 @@ fun ProductCard(
         }
     )
 }
+
+@Composable
+fun ProductEditPopup(
+    product: ProductDTO,
+    onEdit: (productId: Int, newStock: Int) -> Unit,
+    onDismiss: () -> Unit,
+    isAdmin: Boolean
+) {
+    var currentStock by remember { mutableStateOf(product.stock) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            color = Color.White,
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .background(Color.White)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(Color.White)) {
+                    AsyncImage(
+                        model = product.photo,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(text = product.code,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF919BAD))
+                        Text(text = product.name, color = Color.Gray)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                InfoRow(label = "Categoría:", value = product.categoryName)
+                InfoRow(label = "Tipo:", value = product.typeName)
+                InfoRow(label = "Precio:", value = "$${product.price}")
+                InfoRow(label = "Stock", value = "${product.stock}")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if(isAdmin){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(onClick = {
+                            if (currentStock > 0) currentStock--
+                        }) {
+                            Icon(Icons.Default.Remove, contentDescription = null)
+                        }
+                        Text("${currentStock}", fontSize = 20.sp)
+                        IconButton(onClick = {
+                            if (currentStock < product.totalStock) currentStock++
+                        }) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF6C8CD5) // Azul personalizado
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = {
+                            onEdit(product.id, currentStock)
+                        }
+                    ) {
+                        Text("APLICAR CAMBIOS", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun Menu(
+    allProducts: List<ProductDTO>,
+    navHostController: NavHostController,
+    onSearchChange: (List<ProductDTO>) -> Unit,
+    onFilteredChange: (ProductFilterRequest) -> Unit
+){
+    var query by remember { mutableStateOf("") }
+    var showFilterDialog by remember { mutableStateOf(false) }
+    val queried = remember(query, allProducts) {
+        allProducts.filter { it.name.contains(query, ignoreCase = true) }
+    }
+    var filtered by remember {
+        mutableStateOf(ProductFilterRequest(
+            1.0,
+            999.0,
+            LocalDate(2026,12,31),
+            null,
+            null))
+    }
+
+    LaunchedEffect(queried) {
+        onSearchChange(queried)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .padding(10.dp)
+    ) {
+        SearchBar(
+            modifier = Modifier
+                .weight(.80f)
+                .background(
+                    Color(0xFFFFFFFF),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 16.dp)
+                .height(75.dp),
+            onSearch = { query = it }
+        )
+        Spacer(modifier = Modifier.weight(.05f))
+        Button(
+            modifier = Modifier
+                .weight(.15f)
+                .height(70.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+            ),
+            onClick = { showFilterDialog = true }
+        ) {
+            Image(
+                painter = rememberVectorPainter(image = Icons.Default.FilterList),
+                contentDescription = "Filtros",
+                modifier = Modifier
+                    .size(80.dp)
+                    .graphicsLayer(
+                        scaleX = 2f,
+                        scaleY = 2f
+                    ))
+        }
+    }
+
+    FilterDialog(
+        onAplicarFiltro = {
+            filtered = it
+            onFilteredChange(it) },
+        onCancelClick = { showFilterDialog = false },
+        onDismissRequest  = { showFilterDialog = false },
+        showDialog = showFilterDialog
+    )
+
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, fontWeight = FontWeight.SemiBold, color = Color(0xFF193B7A))
+        Text(text = value, color = Color(0xFF193B7A))
+    }
+}
+
 
 @Composable
 fun StockProgress(
@@ -807,6 +960,9 @@ fun TagsSelector(
 
 }
 
+
+//@Composable
+//fun DialogDetail
 
 @Composable
 fun LoadingScreen(){

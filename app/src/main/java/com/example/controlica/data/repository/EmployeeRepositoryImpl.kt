@@ -137,8 +137,6 @@ class EmployeeRepositoryImpl @Inject constructor(
                     }
                 }.decodeSingleOrNull<RolDTO>()
             val roleId = roleResult?.id ?: return Result.failure(Exception("Rol no encontrado"))
-            supabaseClient.postgrest.from("user_roles")
-                .insert(UserRoleDTO(userId = userId, roleId = roleId))
             supabaseClient.postgrest.from("employees")
                 .insert(
                     NewEmployeeRequest(
@@ -147,6 +145,8 @@ class EmployeeRepositoryImpl @Inject constructor(
                         employeeNumber = employee.employeeNumber,
                         photoUrl = photoURL)
                 )
+            supabaseClient.postgrest.from("user_roles")
+                .insert(UserRoleDTO(userId = userId, roleId = roleId))
             Result.success(Unit)
         } catch (e: Exception) {
             when (e){

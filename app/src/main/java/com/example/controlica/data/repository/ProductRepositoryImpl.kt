@@ -77,4 +77,21 @@ class ProductRepositoryImpl @Inject constructor(
             Result.failure(Exception(e.message))
         }
     }
+
+    override suspend fun updateStock(productId: Int, newStock: Int): Result<Unit> {
+        return try {
+            supabaseClient.postgrest
+                .from("product")
+                .update(
+                    mapOf("stock" to newStock)
+                ){
+                    filter {
+                        eq("id", productId)
+                    }
+                }
+            Result.success(Unit)
+        }catch (e: Exception){
+            Result.failure(Exception(e.message))
+        }
+    }
 }

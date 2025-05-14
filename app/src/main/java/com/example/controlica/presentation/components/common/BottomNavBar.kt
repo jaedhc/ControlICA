@@ -14,10 +14,16 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.controlica.core.di.AppSessionEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 
 @Composable
 fun BottomNavBarAnimated(
@@ -25,24 +31,39 @@ fun BottomNavBarAnimated(
     onItemSelected: (Int) -> Unit,
     navHostController: NavHostController
 ){
-    val items = listOf(
+
+    val context = LocalContext.current.applicationContext
+
+    // Obtiene la instancia singleton de AppSession
+    val appSession = remember {
+        EntryPointAccessors.fromApplication(
+            context,
+            AppSessionEntryPoint::class.java
+        ).appSession()
+    }
+
+    val userName by appSession.userName.collectAsState()
+    val userPhoto by appSession.userPhoto.collectAsState()
+    val isAdmin by appSession.isAdmin.collectAsState()
+
+    val items = listOfNotNull(
         Icons.Default.Home,
         Icons.Default.Inventory,
-        Icons.Default.Groups,
+        if (isAdmin) Icons.Default.Groups else null,
         Icons.Default.Person
     )
 
-    val names = listOf(
+    val names = listOfNotNull(
         "dashboard",
         "stock",
-        "manage_users",
+        if (isAdmin) "manage_users" else null,
         "user"
     )
 
-    val sizes = listOf(
+    val sizes = listOfNotNull(
         36.dp,
         30.dp,
-        36.dp,
+        if(isAdmin) 36.dp else null,
         36.dp
     )
 

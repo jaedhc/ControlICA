@@ -4,6 +4,8 @@ import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.controlica.core.di.AppSession
+import com.example.controlica.data.model.users.CurrentEmployeeData
 import com.example.controlica.domain.use_case.auth.CurrentSessionUseCase
 import com.example.controlica.domain.use_case.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val currentSessionUseCase: CurrentSessionUseCase
+    private val currentSessionUseCase: CurrentSessionUseCase,
+    private val appSession: AppSession
 ): ViewModel() {
 
     // LOGIN SCREEN --------------------------------------------------------------------------------
@@ -31,8 +34,8 @@ class AuthViewModel @Inject constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _loginResult = MutableStateFlow<Result<UserSession?>>(Result.success(null))
-    val loginResult: StateFlow<Result<UserSession?>> = _loginResult
+    private val _loginResult = MutableStateFlow<Result<CurrentEmployeeData?>>(Result.success(null))
+    val loginResult: StateFlow<Result<CurrentEmployeeData?>> = _loginResult
 
     fun onLoginChanged(email: String, password: String){
         _email.value = email
@@ -47,6 +50,14 @@ class AuthViewModel @Inject constructor(
     suspend fun authenticateUser(){
         _isLoading.value = true
         _loginResult.value = loginUseCase(_email.value.toString(), _password.value.toString())
+        _loginResult.value.getOrNull()?.employee?.let {
+            appSession.setUser(
+                it.name,
+                it.id,
+                it.photoUrl,
+                it.role == "admin"
+            )
+        }
         _isLoading.value = false
     }
 
@@ -55,12 +66,20 @@ class AuthViewModel @Inject constructor(
     private val _isFetching = MutableStateFlow<Boolean>(true)
     val isFetching: StateFlow<Boolean> = _isFetching
 
-    private val _currentSession = MutableStateFlow<Result<UserSession?>>(Result.success(null))
-    val currentSession: StateFlow<Result<UserSession?>> = _currentSession
+    private val _currentSession = MutableStateFlow<Result<CurrentEmployeeData?>>(Result.success(null))
+    val currentSession: StateFlow<Result<CurrentEmployeeData?>> = _currentSession
 
     suspend fun getCurrentSesion(){
         _isFetching.value = true
         _currentSession.value = currentSessionUseCase()
+        _currentSession.value.getOrNull()?.employee?.let {
+            appSession.setUser(
+                it.name,
+                it.id,
+                it.photoUrl,
+                it.role == "admin"
+            )
+        }
         _isFetching.value = false
     }
 

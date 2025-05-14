@@ -1,9 +1,11 @@
 package com.example.controlica.core.di
 
 import com.example.controlica.data.repository.AuthRepositoryImpl
+import com.example.controlica.data.repository.DashboardRepositoryImpl
 import com.example.controlica.data.repository.EmployeeRepositoryImpl
 import com.example.controlica.data.repository.ProductRepositoryImpl
 import com.example.controlica.domain.repository.AuthRepository
+import com.example.controlica.domain.repository.DashboardRepository
 import com.example.controlica.domain.repository.EmployeeRepository
 import com.example.controlica.domain.repository.ProductRepository
 import com.example.controlica.domain.use_case.employees.GetAllEmployeesUseCase
@@ -83,7 +85,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(auth: Auth): AuthRepository = AuthRepositoryImpl(auth)
+    fun provideAuthRepository(
+        @Named("supabase_public_client") supabaseClient: SupabaseClient,
+    ): AuthRepository = AuthRepositoryImpl(supabaseClient)
 
     @Provides
     @Singleton
@@ -102,6 +106,18 @@ object AppModule {
     ): ProductRepository {
         return ProductRepositoryImpl(supabaseClient)
     }
+
+    @Provides
+    @Singleton
+    fun provideDashboardRepository(
+        @Named("supabase_public_client") supabaseClient: SupabaseClient,
+    ): DashboardRepository {
+        return DashboardRepositoryImpl(supabaseClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppSession(): AppSession = AppSession()
 
     @Provides
     @Singleton
